@@ -21,13 +21,14 @@
   Allows loading arbitrary files into Oracle BLOB (Binary Large Object) columns.
 
 Usage:
-  blobloader.py load  [-v] [--cfgfile <file>] [--cfgkey <key>] <id> <filename> [-]
-  blobloader.py dump  [-] [-v] [--cfgfile <file>] [--cfgkey <key>] <id> <filename>
+  blobloader.py load  [-vb] [--cfgfile <file>] [--cfgkey <key>] <id> <filename>
+  blobloader.py dump  [-vb] [--cfgfile <file>] [--cfgkey <key>] <id> <filename>
   blobloader.py print [-v] [--cfgfile <file>] [--cfgkey <key>]
   blobloader.py --help
   blobloader.py --version
 
 Options:
+  -b, --batch             Batch mode
   -c, --cfgfile <file>    Name of a configuration file [default: ~/.blobloader]
   -k, --cfgkey <key>      Name of a configuration file [default: default]
   -h, --help              Show this screen and exit.
@@ -299,6 +300,7 @@ class Main(object):
     def __init__(self):
         self.arguments = docopt(__doc__, version='blobloader 0.1.0')
         self.verbose = self.arguments['--verbose']
+        self.batch = self.arguments['--batch']
         if self.verbose: print(self.arguments)
         self.loader = BlobLoader(Configuration(self.arguments['--cfgfile'], self.arguments['--cfgkey']))
         self.loader.setVerbose(self.arguments['--verbose'])
@@ -321,7 +323,7 @@ class Main(object):
 
     def readPassword(self):
         pwd = None
-        if '-' in sys.argv:
+        if self.batch:
             pwd = sys.stdin.readline()
         else:
             pwd = getpass.getpass("Enter password: ")
